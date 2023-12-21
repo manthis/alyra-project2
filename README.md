@@ -18,6 +18,22 @@ Vous devez alors fournir les tests unitaires de votre smart contract Nous n’at
 
 ## :point_right: Coverage
 
-[![codecov](https://codecov.io/gh/manthis/alyra-project2/graph/badge.svg?token=RCE9F2AA3K)](https://codecov.io/gh/manthis/alyra-project2)
+### Hardhat tests run
 
 ![alt text](./resources/coverage.png)
+
+### Codecov Badge and heating maps
+
+[![codecov](https://codecov.io/gh/manthis/alyra-project2/graph/badge.svg?token=RCE9F2AA3K)](https://codecov.io/gh/manthis/alyra-project2)
+
+#### 1. Sunburst
+
+![alt text](https://codecov.io/gh/manthis/alyra-project2/graphs/sunburst.svg?token=RCE9F2AA3K)
+
+#### 2. Grid
+
+![alt text](https://codecov.io/gh/manthis/alyra-project2/graphs/tree.svg?token=RCE9F2AA3K)
+
+#### 3. Icicle
+
+![alt text](https://codecov.io/gh/manthis/alyra-project2/graphs/icicle.svg?token=RCE9F2AA3K)
