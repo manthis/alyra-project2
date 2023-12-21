@@ -5,12 +5,12 @@ describe('Voting', function () {
     /** WorkflowStatus Enum=============================================================================================================================*/
 
     const WorkflowStatus = Object.freeze({
-        RegisteringVoters: 1,
-        ProposalsRegistrationStarted: 2,
-        ProposalsRegistrationEnded: 3,
-        VotingSessionStarted: 4,
-        VotingSessionEnded: 5,
-        VotesTallied: 6,
+        RegisteringVoters: 0,
+        ProposalsRegistrationStarted: 1,
+        ProposalsRegistrationEnded: 2,
+        VotingSessionStarted: 3,
+        VotingSessionEnded: 4,
+        VotesTallied: 5,
     });
 
     /** Fixtures =======================================================================================================================================*/
@@ -66,7 +66,7 @@ describe('Voting', function () {
         return await initializeAndStartVotingSessionAndVote();
     };
 
-    /** Unit testing =================================================================================================================================*/
+    /** Unit tests ===================================================================================================================================*/
 
     describe('Unit testing', function () {
         describe('Deployment', function () {
@@ -274,7 +274,15 @@ describe('Voting', function () {
                     .withArgs(WorkflowStatus.VotingSessionEnded, WorkflowStatus.VotesTallied);
             });
 
-            it('should define a winning proposal and winningProposalID should be set', async function () {
+            it('should have definied workflowStatus to VotesTallied', async function () {
+                const { voting, owner } = await loadFixture(contractStartVotingAndVoteFixture);
+                await voting.connect(owner).endVotingSession();
+                await voting.connect(owner).tallyVotes();
+
+                expect(await voting.workflowStatus()).to.be.equal(WorkflowStatus.VotesTallied);
+            });
+
+            it('should set winningProposalID with the winning proposal id', async function () {
                 const { voting, owner } = await loadFixture(contractStartVotingAndVoteFixture);
                 await voting.connect(owner).endVotingSession();
                 await voting.connect(owner).tallyVotes();
@@ -313,6 +321,12 @@ describe('Voting', function () {
                         .to.emit(voting, 'WorkflowStatusChange')
                         .withArgs(WorkflowStatus.RegisteringVoters, WorkflowStatus.ProposalsRegistrationStarted);
                 });
+
+                it('should have defined workflowStatus to the ProposalsRegistrationStarted state', async function () {
+                    const { voting, owner } = await loadFixture(contractInitializationFixture);
+                    await voting.connect(owner).startProposalsRegistering();
+                    expect(await voting.workflowStatus()).to.be.equal(WorkflowStatus.ProposalsRegistrationStarted);
+                });
             });
 
             describe('endProposalsRegistering', function () {
@@ -341,6 +355,12 @@ describe('Voting', function () {
                             WorkflowStatus.ProposalsRegistrationEnded,
                         );
                 });
+
+                it('should have defined workflowStatus to the ProposalsRegistrationEnded state', async function () {
+                    const { voting, owner } = await loadFixture(contractStartPropositionsRegisteringFixture);
+                    await voting.connect(owner).endProposalsRegistering();
+                    expect(await voting.workflowStatus()).to.be.equal(WorkflowStatus.ProposalsRegistrationEnded);
+                });
             });
 
             describe('startVotingSession', function () {
@@ -366,6 +386,12 @@ describe('Voting', function () {
                     expect(await voting.connect(owner).startVotingSession())
                         .to.emit(voting, 'WorkflowStatusChange')
                         .withArgs(WorkflowStatus.ProposalsRegistrationEnded, WorkflowStatus.VotingSessionStarted);
+                });
+
+                it('should have defined workflowStatus to the VotingSessionStarted state', async function () {
+                    const { voting, owner } = await loadFixture(contractStartVotingFixture);
+                    // await voting.connect(owner).startVotingSession();
+                    expect(await voting.workflowStatus()).to.be.equal(WorkflowStatus.VotingSessionStarted);
                 });
             });
 
@@ -394,13 +420,21 @@ describe('Voting', function () {
                         .to.emit(voting, 'WorkflowStatusChange')
                         .withArgs(WorkflowStatus.VotingSessionStarted, WorkflowStatus.VotingSessionEnded);
                 });
+
+                it('should have defined workflowStatus to the VotingSessionEnded state', async function () {
+                    const { voting, owner } = await loadFixture(contractStartVotingFixture);
+                    await voting.connect(owner).endVotingSession();
+                    expect(await voting.workflowStatus()).to.be.equal(WorkflowStatus.VotingSessionEnded);
+                });
             });
         });
     });
 
-    /** E2E testing =================================================================================================================================*/
+    /** E2E tests ===================================================================================================================================*/
 
     describe('E2e testing', function () {
-        describe('Whole voting process testing', function () {});
+        describe('Whole voting process testing', function () {
+            // TODO: implement a few E2E tests or delete this section
+        });
     });
 });
