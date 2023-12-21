@@ -1,0 +1,25 @@
+{
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "overrides": [{
+      "files": "*.sol",
+        "options": {
+            "printWidth": 80,
+            "singleQuote": false,
+            "bracketSpacing": false,
+            "explicitTypes": "preserve"
+        }
+    }, {
+        "files": ["*.js", "*.ts"],
+        "options": {
+            "printWidth": 120,
+            "singleQuote": true,
+            "jsxSingleQuote": true,
+            "trailingComma": "all",
+            "bracketSpacing": true,
+            "bracketSameLine": true,
+            "arrowParens": "always",
+        }
+    }]
+}
