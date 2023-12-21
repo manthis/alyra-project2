@@ -1,16 +1,22 @@
 name: Upload coverage reports to Codecov
-on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+on: [push, pull_request]
 jobs:
     codecov:
         runs-on: ubuntu-latest
         steps:
-            - uses: codecov/codecov-action@v3
+            - uses: actions/checkout@v2
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v2
+
+            - name: Install dependencies
+              run: yarn install
+
+            - name: Run Hardhat tests
+              run: yarn hardhat coverage
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v3
 
 env:
     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
