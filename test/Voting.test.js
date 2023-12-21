@@ -2,6 +2,8 @@ const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 const { expect } = require('chai');
 
 describe('Voting', function () {
+    /** WorkflowStatus Enum=============================================================================================================================*/
+
     const WorkflowStatus = Object.freeze({
         RegisteringVoters: 1,
         ProposalsRegistrationStarted: 2,
@@ -10,6 +12,8 @@ describe('Voting', function () {
         VotingSessionEnded: 5,
         VotesTallied: 6,
     });
+
+    /** Fixtures =======================================================================================================================================*/
 
     const intitialize = async () => {
         const [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
@@ -61,6 +65,8 @@ describe('Voting', function () {
     const contractStartVotingAndVoteFixture = async () => {
         return await initializeAndStartVotingSessionAndVote();
     };
+
+    /** Unit testing =================================================================================================================================*/
 
     describe('Unit testing', function () {
         describe('Deployment', function () {
@@ -391,6 +397,8 @@ describe('Voting', function () {
             });
         });
     });
+
+    /** E2E testing =================================================================================================================================*/
 
     describe('E2e testing', function () {
         describe('Whole voting process testing', function () {});
