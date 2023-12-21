@@ -16,16 +16,18 @@ Vous devez alors fournir les tests unitaires de votre smart contract Nous n’at
 
 ## :point_right: Stratégie de test
 
-Le plan de test est simple: passer en revue l'ensemble des méthodes du contract _Voting.sol_. Pour cela nous avons effectué les tâches suivantes:
+Le plan de test est simple: passer en revue l'ensemble des méthodes du contract _Voting.sol_. Pour cela j'ai effectué les tâches suivantes avec pour objectif d'atteindre 100% de coverage:
 
 -   Définit un objet _WorkflowStatus_ pour répliquer l'enum des différents états du workflow qui se trouve dans le contrat _Voting.sol_.
--   Définit nos fixtures pour préparer notre environnement pour nos tests. J'ai pris l'initiative de n'utiliser que des fixtures et aucun appel aux fonctions natives de mocha: _before_ et _beforeEach_. Afin d'améliorer mon code j'ai pris le parti de composer mes fixtures avec des fonctions que je peux réutiliser dans différentes fixtures.
--   Définit nos tests unitaires en passant sur chaque méthode. Chaque méthode correspond à un _describe_ qui contient plusieurs tests propre à cette dernière. Pour chaque méthode et afin de déterminer les tests à réaliser nous avons suivi les étapes suivantes:
+-   Définit mes fixtures pour préparer notre environnement pour nos tests. J'ai pris l'initiative de n'utiliser que des fixtures et aucun appel aux fonctions natives de mocha: _before_ et _beforeEach_. Afin d'améliorer mon code j'ai pris le parti de composer mes fixtures avec des fonctions que je peux ainsi réutiliser dans différentes fixtures.
+-   Définit mes tests unitaires en passant sur chaque méthode. Chaque méthode correspond à un _describe_ qui contient plusieurs tests propre à cette dernière. Chaque groupe de méthodes est lui-même placé dans un describe de contexte. Pour chaque méthode et afin de déterminer les tests à réaliser nous avons suivi les étapes suivantes:
     -   Tester le/les modifiers
     -   Tester les différents require
     -   Tester les événements émis
     -   Tester un cas de succès
     -   Eventuels autres tests
+
+J'ai implémenté **46 tests unitaires qui couvent 100% du code de notre contrat Solidity** comme nous allons le voir dans les prochaines sections.
 
 ## :point_right: Coverage
 
@@ -34,6 +36,8 @@ Le plan de test est simple: passer en revue l'ensemble des méthodes du contract
 ![alt text](./resources/coverage.png)
 
 ### Hardhat tests gas report (in €)
+
+**Attention:** aucune optimisation de gas n'a été faite sur ce projet notamment pour ne pas modifier le contrat d'origine. L'_optimizer_ n'a pas non plus été activé (et est donc par défaut à 200).
 
 ![alt text](./resources/gas.png)
 
