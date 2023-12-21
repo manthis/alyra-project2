@@ -17,3 +17,5 @@ Vous devez alors fournir les tests unitaires de votre smart contract Nous n’at
 ## :point_right: Stratégie de test
 
 ## :point_right: Coverage
+
+![alt text](./resources/coverage.png)
