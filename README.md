@@ -18,4 +18,6 @@ Vous devez alors fournir les tests unitaires de votre smart contract Nous n’at
 
 ## :point_right: Coverage
 
+[![codecov](https://codecov.io/gh/manthis/alyra-project2/graph/badge.svg?token=RCE9F2AA3K)](https://codecov.io/gh/manthis/alyra-project2)
+
 ![alt text](./resources/coverage.png)
