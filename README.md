@@ -24,7 +24,13 @@ Vous devez alors fournir les tests unitaires de votre smart contract Nous n’at
 
 ### Codecov Badge and heating maps
 
+J'ai développé une action Github pour uploader tous les fichiers de coverage resultant des tests hardhats sur Codecov afin de tracker la progression du coverage: [codecov.yml](./.github/workflows/codecov.yml). Cette action m'a également permis d'ajouter des informsions de coverage sur ce README:
+
+Voici le badge Codecov qui indique le pourcentage de coverage du projet:
+
 [![codecov](https://codecov.io/gh/manthis/alyra-project2/graph/badge.svg?token=RCE9F2AA3K)](https://codecov.io/gh/manthis/alyra-project2)
+
+Voici ci-dessous les graphiques générés par codecov illustrant le coverage du projet:
 
 #### 1. Sunburst
 
