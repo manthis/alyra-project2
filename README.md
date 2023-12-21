@@ -28,7 +28,7 @@ Le plan de test est simple: passer en revue l'ensemble des méthodes du contract
     -   Eventuels autres tests
 -   Définit mes tests End to End qui couvrent des aspects fonctionnels non abordés dans les autres tests.
 
-J'ai implémenté **50 tests unitaires et e2e qui couvent 100% du code de notre contrat Solidity** comme nous allons le voir dans les prochaines sections.
+J'ai implémenté **50 tests unitaires et e2e qui couvrent 100% du code de notre contrat Solidity** comme nous allons le voir dans les prochaines sections.
 
 ## :point_right: Coverage
 
