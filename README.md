@@ -22,6 +22,10 @@ Vous devez alors fournir les tests unitaires de votre smart contract Nous n’at
 
 ![alt text](./resources/coverage.png)
 
+### Hardhat tests gas report (in €)
+
+![alt text](./resources/gas.png)
+
 ### Codecov Badge and heating maps
 
 J'ai développé une action Github pour uploader tous les fichiers de coverage resultant des tests hardhats sur Codecov afin de tracker la progression du coverage: [codecov.yml](./.github/workflows/codecov.yml). Cette action m'a également permis d'ajouter des informsions de coverage sur ce README.
