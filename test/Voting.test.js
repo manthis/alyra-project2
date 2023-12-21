@@ -120,178 +120,186 @@ describe('Voting', function () {
             });
         });
 
-        describe('Registration', function () {
-            it('should revert if not called by the owner', async function () {
-                const { voting, addr1 } = await loadFixture(contractInitializationFixture);
+        describe('General contract methods', function () {
+            describe('addVoter', function () {
+                it('should revert if not called by the owner', async function () {
+                    const { voting, addr1 } = await loadFixture(contractInitializationFixture);
 
-                expect(voting.connect(addr1).addVoter(addr1.address)).to.be.revertedWith(
-                    'Ownable: caller is not the owner',
-                );
+                    expect(voting.connect(addr1).addVoter(addr1.address)).to.be.revertedWith(
+                        'Ownable: caller is not the owner',
+                    );
+                });
+
+                it('should revert if voters registration is not open', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartPropositionsRegisteringFixture);
+
+                    expect(voting.connect(owner).addVoter(addr1.address)).to.be.revertedWith(
+                        'Voters registration is not open yet',
+                    );
+                });
+
+                it('should revert if the voter is already registered', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
+                    await voting.connect(owner).addVoter(addr1.address);
+
+                    expect(voting.connect(owner).addVoter(addr1.address)).to.be.revertedWith('Already registered');
+                });
+
+                it('should add a voter when called by the owner', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
+                    await voting.connect(owner).addVoter(addr1.address);
+                    const voter = [true, false, BigInt(0)];
+
+                    expect(await voting.connect(addr1).getVoter(addr1.address)).to.eql(voter);
+                });
+
+                it('should emit a VoterRegistered event on success', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
+
+                    expect(voting.connect(owner).addVoter(addr1.address))
+                        .to.emit(voting, 'VoterRegistered')
+                        .withArgs(addr1.address);
+                });
             });
 
-            it('should revert if voters registration is not open', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartPropositionsRegisteringFixture);
+            describe('addProposal', function () {
+                it('should revert if not called by a voter', async function () {
+                    const { voting, owner } = await loadFixture(contractInitializationFixture);
 
-                expect(voting.connect(owner).addVoter(addr1.address)).to.be.revertedWith(
-                    'Voters registration is not open yet',
-                );
+                    expect(voting.connect(owner).addProposal('Alyra')).to.be.revertedWith(`You're not a voter!`);
+                });
+
+                it('should revert if proposals registration is not open', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
+                    await voting.connect(owner).addVoter(addr1.address);
+
+                    expect(voting.connect(addr1).addProposal('Alyra')).to.be.revertedWith(
+                        'Proposals are not allowed yet',
+                    );
+                });
+
+                it('should revert if proposition is empty', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartPropositionsRegisteringFixture);
+
+                    expect(voting.connect(addr1).addProposal('')).to.be.revertedWith(
+                        'Vous ne pouvez pas ne rien proposer',
+                    );
+                });
+
+                it('should add a proposal when called by a voter', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartPropositionsRegisteringFixture);
+                    await voting.connect(addr1).addProposal('Alyra');
+                    const proposal = ['Alyra', BigInt(0)];
+
+                    expect(await voting.connect(addr1).getOneProposal(1)).to.eql(proposal);
+                });
+
+                it('should emit a ProposalRegistered event on success', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartPropositionsRegisteringFixture);
+
+                    expect(voting.connect(addr1).addProposal('GENESIS'))
+                        .to.emit(voting, 'ProposalRegistered')
+                        .withArgs(1);
+                });
             });
 
-            it('should revert if the voter is already registered', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
-                await voting.connect(owner).addVoter(addr1.address);
+            describe('setVote', function () {
+                it('should revert if not called by a voter', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
 
-                expect(voting.connect(owner).addVoter(addr1.address)).to.be.revertedWith('Already registered');
+                    expect(voting.connect(owner).setVote(0)).to.be.revertedWith(`You're not a voter!`);
+                });
+
+                it('should revert if id is out of bounds', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartVotingFixture);
+
+                    expect(voting.connect(addr1).setVote(3)).to.be.revertedWith('Proposal not found');
+                });
+
+                it('should revert if voter already voted', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
+
+                    expect(voting.connect(addr1).setVote(1)).to.be.revertedWith('You have already voted');
+                });
+
+                it('should revert if voting session is not started', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
+                    await voting.connect(owner).addVoter(addr1.address);
+
+                    expect(voting.connect(addr1).setVote(0)).to.be.revertedWith('Voting session havent started yet');
+                });
+
+                it('should emit a Voted event on success', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartVotingFixture);
+
+                    expect(voting.connect(addr1).setVote(1)).to.emit(voting, 'Voted').withArgs(addr1.address, 1);
+                });
+
+                it('should increment the vote count of a proposition', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
+                    const proposal = ['Alyra', BigInt(1)];
+
+                    expect(await voting.connect(addr1).getOneProposal(1)).to.eql(proposal);
+                });
+
+                it('should set the hadVoted property of the user struc to true', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
+                    const voter = await voting.connect(addr1).getVoter(addr1.address);
+
+                    expect(voter.hasVoted).to.be.true;
+                });
+
+                it('should set the votedProposalId property of the user struct to the id of the voted proposal', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
+                    const voter = await voting.connect(addr1).getVoter(addr1.address);
+
+                    expect(voter.votedProposalId).to.be.equal(1);
+                });
             });
 
-            it('should add a voter when called by the owner', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
-                await voting.connect(owner).addVoter(addr1.address);
-                const voter = [true, false, BigInt(0)];
+            describe('tallyVotes', function () {
+                it('should revert if not called by the owner', async function () {
+                    const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
 
-                expect(await voting.connect(addr1).getVoter(addr1.address)).to.eql(voter);
-            });
+                    expect(voting.connect(addr1).tallyVotes()).to.be.revertedWith(`Ownable: caller is not the owner`);
+                });
 
-            it('should emit a VoterRegistered event on success', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
+                it('should revert if voting session has not ended', async function () {
+                    const { voting, owner } = await loadFixture(contractStartVotingFixture);
 
-                expect(voting.connect(owner).addVoter(addr1.address))
-                    .to.emit(voting, 'VoterRegistered')
-                    .withArgs(addr1.address);
+                    expect(voting.connect(owner).tallyVotes()).to.be.revertedWith(
+                        'Current status is not voting session ended',
+                    );
+                });
+
+                it('should emit a WorkflowStatusChange event on success', async function () {
+                    const { voting, owner } = await loadFixture(contractStartVotingAndVoteFixture);
+                    await voting.connect(owner).endVotingSession();
+
+                    expect(await voting.connect(owner).tallyVotes())
+                        .to.emit(voting, 'WorkflowStatusChange')
+                        .withArgs(WorkflowStatus.VotingSessionEnded, WorkflowStatus.VotesTallied);
+                });
+
+                it('should have definied workflowStatus to VotesTallied', async function () {
+                    const { voting, owner } = await loadFixture(contractStartVotingAndVoteFixture);
+                    await voting.connect(owner).endVotingSession();
+                    await voting.connect(owner).tallyVotes();
+
+                    expect(await voting.workflowStatus()).to.be.equal(WorkflowStatus.VotesTallied);
+                });
+
+                it('should set winningProposalID with the winning proposal id', async function () {
+                    const { voting, owner } = await loadFixture(contractStartVotingAndVoteFixture);
+                    await voting.connect(owner).endVotingSession();
+                    await voting.connect(owner).tallyVotes();
+
+                    expect(await voting.winningProposalID()).to.be.equal(1);
+                });
             });
         });
 
-        describe('Proposals', function () {
-            it('should revert if not called by a voter', async function () {
-                const { voting, owner } = await loadFixture(contractInitializationFixture);
-
-                expect(voting.connect(owner).addProposal('Alyra')).to.be.revertedWith(`You're not a voter!`);
-            });
-
-            it('should revert if proposals registration is not open', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
-                await voting.connect(owner).addVoter(addr1.address);
-
-                expect(voting.connect(addr1).addProposal('Alyra')).to.be.revertedWith('Proposals are not allowed yet');
-            });
-
-            it('should revert if proposition is empty', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartPropositionsRegisteringFixture);
-
-                expect(voting.connect(addr1).addProposal('')).to.be.revertedWith('Vous ne pouvez pas ne rien proposer');
-            });
-
-            it('should add a proposal when called by a voter', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartPropositionsRegisteringFixture);
-                await voting.connect(addr1).addProposal('Alyra');
-                const proposal = ['Alyra', BigInt(0)];
-
-                expect(await voting.connect(addr1).getOneProposal(1)).to.eql(proposal);
-            });
-
-            it('should emit a ProposalRegistered event on success', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartPropositionsRegisteringFixture);
-
-                expect(voting.connect(addr1).addProposal('GENESIS')).to.emit(voting, 'ProposalRegistered').withArgs(1);
-            });
-        });
-
-        describe('Voting', function () {
-            it('should revert if not called by a voter', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
-
-                expect(voting.connect(owner).setVote(0)).to.be.revertedWith(`You're not a voter!`);
-            });
-
-            it('should revert if id is out of bounds', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartVotingFixture);
-
-                expect(voting.connect(addr1).setVote(3)).to.be.revertedWith('Proposal not found');
-            });
-
-            it('should revert if voter already voted', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
-
-                expect(voting.connect(addr1).setVote(1)).to.be.revertedWith('You have already voted');
-            });
-
-            it('should revert if voting session is not started', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);
-                await voting.connect(owner).addVoter(addr1.address);
-
-                expect(voting.connect(addr1).setVote(0)).to.be.revertedWith('Voting session havent started yet');
-            });
-
-            it('should emit a Voted event on success', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartVotingFixture);
-
-                expect(voting.connect(addr1).setVote(1)).to.emit(voting, 'Voted').withArgs(addr1.address, 1);
-            });
-
-            it('should increment the vote count of a proposition', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
-                const proposal = ['Alyra', BigInt(1)];
-
-                expect(await voting.connect(addr1).getOneProposal(1)).to.eql(proposal);
-            });
-
-            it('should set the hadVoted property of the user struc to true', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
-                const voter = await voting.connect(addr1).getVoter(addr1.address);
-
-                expect(voter.hasVoted).to.be.true;
-            });
-
-            it('should set the votedProposalId property of the user struct to the id of the voted proposal', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
-                const voter = await voting.connect(addr1).getVoter(addr1.address);
-
-                expect(voter.votedProposalId).to.be.equal(1);
-            });
-        });
-
-        describe('Tallying', function () {
-            it('should revert if not called by the owner', async function () {
-                const { voting, owner, addr1 } = await loadFixture(contractStartVotingAndVoteFixture);
-
-                expect(voting.connect(addr1).tallyVotes()).to.be.revertedWith(`Ownable: caller is not the owner`);
-            });
-
-            it('should revert if voting session has not ended', async function () {
-                const { voting, owner } = await loadFixture(contractStartVotingFixture);
-
-                expect(voting.connect(owner).tallyVotes()).to.be.revertedWith(
-                    'Current status is not voting session ended',
-                );
-            });
-
-            it('should emit a WorkflowStatusChange event on success', async function () {
-                const { voting, owner } = await loadFixture(contractStartVotingAndVoteFixture);
-                await voting.connect(owner).endVotingSession();
-
-                expect(await voting.connect(owner).tallyVotes())
-                    .to.emit(voting, 'WorkflowStatusChange')
-                    .withArgs(WorkflowStatus.VotingSessionEnded, WorkflowStatus.VotesTallied);
-            });
-
-            it('should have definied workflowStatus to VotesTallied', async function () {
-                const { voting, owner } = await loadFixture(contractStartVotingAndVoteFixture);
-                await voting.connect(owner).endVotingSession();
-                await voting.connect(owner).tallyVotes();
-
-                expect(await voting.workflowStatus()).to.be.equal(WorkflowStatus.VotesTallied);
-            });
-
-            it('should set winningProposalID with the winning proposal id', async function () {
-                const { voting, owner } = await loadFixture(contractStartVotingAndVoteFixture);
-                await voting.connect(owner).endVotingSession();
-                await voting.connect(owner).tallyVotes();
-
-                expect(await voting.winningProposalID()).to.be.equal(1);
-            });
-        });
-
-        describe('Workflow', function () {
+        describe('Workflow states handling methods', function () {
             describe('startProposalRegistering', function () {
                 it('should revert if not called by the owner', async function () {
                     const { voting, owner, addr1 } = await loadFixture(contractInitializationFixture);

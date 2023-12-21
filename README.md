@@ -16,6 +16,17 @@ Vous devez alors fournir les tests unitaires de votre smart contract Nous n’at
 
 ## :point_right: Stratégie de test
 
+Le plan de test est simple: passer en revue l'ensemble des méthodes du contract _Voting.sol_. Pour cela nous avons effectué les tâches suivantes:
+
+-   Définit un objet _WorkflowStatus_ pour répliquer l'enum des différents états du workflow qui se trouve dans le contrat _Voting.sol_.
+-   Définit nos fixtures pour préparer notre environnement pour nos tests. J'ai pris l'initiative de n'utiliser que des fixtures et aucun appel aux fonctions natives de mocha: _before_ et _beforeEach_. Afin d'améliorer mon code j'ai pris le parti de composer mes fixtures avec des fonctions que je peux réutiliser dans différentes fixtures.
+-   Définit nos tests unitaires en passant sur chaque méthode. Chaque méthode correspond à un _describe_ qui contient plusieurs tests propre à cette dernière. Pour chaque méthode et afin de déterminer les tests à réaliser nous avons suivi les étapes suivantes:
+    -   Tester le/les modifiers
+    -   Tester les différents require
+    -   Tester les événements émis
+    -   Tester un cas de succès
+    -   Eventuels autres tests
+
 ## :point_right: Coverage
 
 ### Hardhat tests run
