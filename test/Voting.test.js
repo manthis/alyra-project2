@@ -113,9 +113,9 @@ describe('Voting', function () {
                 it('should revert if not called by the owner', async function () {
                     const { voting, addr1 } = await loadFixture(fixtureInitialization);
 
-                    expect(voting.connect(addr1).addVoter(addr1.address)).to.be.revertedWith(
-                        'Ownable: caller is not the owner',
-                    );
+                    expect(voting.connect(addr1).addVoter(addr1.address))
+                        .to.be.revertedWithCustomError(voting, 'OwnableUnauthorizedAccount')
+                        .withArgs(addr1.address);
                 });
 
                 it('should revert if voters registration is not open', async function () {
@@ -230,7 +230,7 @@ describe('Voting', function () {
                     expect(await voting.connect(addr1).getOneProposal(1)).to.eql(proposal);
                 });
 
-                it('should set the hadVoted property of the user struc to true', async function () {
+                it('should set the hadVoted property of the user struct to true', async function () {
                     const { voting, owner, addr1 } = await loadFixture(fixtureStartVotingAndVote);
                     const voter = await voting.connect(addr1).getVoter(addr1.address);
 
@@ -249,7 +249,9 @@ describe('Voting', function () {
                 it('should revert if not called by the owner', async function () {
                     const { voting, owner, addr1 } = await loadFixture(fixtureStartVotingAndVote);
 
-                    expect(voting.connect(addr1).tallyVotes()).to.be.revertedWith(`Ownable: caller is not the owner`);
+                    expect(voting.connect(addr1).tallyVotes())
+                        .to.be.revertedWithCustomError(voting, 'OwnableUnauthorizedAccount')
+                        .withArgs(addr1.address);
                 });
 
                 it('should revert if voting session has not ended', async function () {
@@ -292,9 +294,9 @@ describe('Voting', function () {
                 it('should revert if not called by the owner', async function () {
                     const { voting, owner, addr1 } = await loadFixture(fixtureInitialization);
 
-                    expect(voting.connect(addr1).startProposalsRegistering()).to.be.revertedWith(
-                        `Ownable: caller is not the owner`,
-                    );
+                    expect(voting.connect(addr1).startProposalsRegistering())
+                        .to.be.revertedWithCustomError(voting, 'OwnableUnauthorizedAccount')
+                        .withArgs(addr1.address);
                 });
 
                 it('should revert if proposals registration has already started', async function () {
@@ -329,9 +331,9 @@ describe('Voting', function () {
                 it('should revert if not called by the owner', async function () {
                     const { voting, owner, addr1 } = await loadFixture(fixtureInitialization);
 
-                    expect(voting.connect(addr1).endProposalsRegistering()).to.be.revertedWith(
-                        `Ownable: caller is not the owner`,
-                    );
+                    expect(voting.connect(addr1).endProposalsRegistering())
+                        .to.be.revertedWithCustomError(voting, 'OwnableUnauthorizedAccount')
+                        .withArgs(addr1.address);
                 });
 
                 it('should revert if proposals registration has not started', async function () {
@@ -363,9 +365,9 @@ describe('Voting', function () {
                 it('should revert if not called by the owner', async function () {
                     const { voting, owner, addr1 } = await loadFixture(fixtureInitialization);
 
-                    expect(voting.connect(addr1).startVotingSession()).to.be.revertedWith(
-                        `Ownable: caller is not the owner`,
-                    );
+                    expect(voting.connect(addr1).startVotingSession())
+                        .to.be.revertedWithCustomError(voting, 'OwnableUnauthorizedAccount')
+                        .withArgs(addr1.address);
                 });
 
                 it('should revert if voting session has already started', async function () {
@@ -395,9 +397,9 @@ describe('Voting', function () {
                 it('should revert if not called by the owner', async function () {
                     const { voting, owner, addr1 } = await loadFixture(fixtureInitialization);
 
-                    expect(voting.connect(addr1).endVotingSession()).to.be.revertedWith(
-                        `Ownable: caller is not the owner`,
-                    );
+                    expect(voting.connect(addr1).endVotingSession())
+                        .to.be.revertedWithCustomError(voting, 'OwnableUnauthorizedAccount')
+                        .withArgs(addr1.address);
                 });
 
                 it('should revert if ending session has already occured', async function () {
